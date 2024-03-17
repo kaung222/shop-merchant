@@ -11,42 +11,15 @@ import { Button } from "../ui/button";
 import { categories } from "@/data/category.data";
 import useSetUrlQuery from "@/lib/useSetUrlQuery";
 import SearchBox from "../commons/search-box";
-import IconTable from "@/assets/icons/IconTable";
-import IconList from "@/assets/icons/IconList";
 const ProductFilterbar = () => {
   const { getQuery, setQuery } = useSetUrlQuery();
   const currentCategory = getQuery("category");
   const currentSort = getQuery("sort");
-  const currentView = getQuery("view");
+
   return (
     <div className="flex items-center justify-between space-x-10">
       <SearchBox />
       <div className="flex py-3 items-center space-x-6">
-        <div className="">
-          {currentView === "table" ? (
-            <Button
-              variant="ghost"
-              onClick={() =>
-                setQuery({ key: "view", value: "list", backToFirstPage: false })
-              }
-            >
-              <IconTable />
-            </Button>
-          ) : (
-            <Button
-              variant="ghost"
-              onClick={() =>
-                setQuery({
-                  key: "view",
-                  value: "table",
-                  backToFirstPage: false,
-                })
-              }
-            >
-              <IconList />
-            </Button>
-          )}
-        </div>
         <Select
           value={currentSort}
           onValueChange={(value) =>
@@ -58,8 +31,8 @@ const ProductFilterbar = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem value="asc">Newest to oldest</SelectItem>
-              <SelectItem value="desc">Oldest to newest</SelectItem>
+              <SelectItem value="desc">Newest to oldest</SelectItem>
+              <SelectItem value="asc">Oldest to newest</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>

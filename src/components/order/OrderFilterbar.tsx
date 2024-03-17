@@ -1,6 +1,5 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { Input } from "../ui/input";
 import {
   Select,
   SelectContent,
@@ -9,40 +8,53 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import SearchBox from "../commons/search-box";
+import useSetUrlQuery from "@/lib/useSetUrlQuery";
 
 const OrderFilterbar = () => {
-  const { register } = useForm();
+  // const { register } = useForm();
+  const { setQuery, getQuery } = useSetUrlQuery();
   return (
     <div className="flex items-center justify-between space-x-10">
-      <Input name="order" placeholder="Search in orders..." className="" />
+      <SearchBox />
       <div className="flex py-3 items-center space-x-6">
-        <Select value="newToOld">
+        <Select
+          value={getQuery("sort")}
+          onValueChange={(value) =>
+            setQuery({ key: "sort", value, backToFirstPage: true })
+          }
+        >
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Newest to oldest" />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>
-              <SelectItem value="newToOld">Newest to oldest</SelectItem>
-              <SelectItem value="oldToNew">Oldest to newest</SelectItem>
+              <SelectItem value="desc">Newest to oldest</SelectItem>
+              <SelectItem value="asc">Oldest to newest</SelectItem>
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+        {/* filter by status */}
+        <Select
+          value={getQuery("status")}
+          onValueChange={(value) =>
+            setQuery({ key: "status", value, backToFirstPage: true })
+          }
+        >
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="All" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="accepted">Accepted</SelectItem>
+              <SelectItem value="shipped">Shipped</SelectItem>
+              <SelectItem value="delivered">Delivered</SelectItem>
             </SelectGroup>
           </SelectContent>
         </Select>
       </div>
-
-      <Select value="apple">
-        <SelectTrigger className="w-[200px]">
-          <SelectValue placeholder="All" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectItem value="apple">All</SelectItem>
-            <SelectItem value="banana">Pending</SelectItem>
-            <SelectItem value="blueberry">Acceptedd</SelectItem>
-            <SelectItem value="grapes">Shipped</SelectItem>
-            <SelectItem value="pineapple">Delievered</SelectItem>
-          </SelectGroup>
-        </SelectContent>
-      </Select>
     </div>
   );
 };

@@ -9,18 +9,31 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuPortal,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { AlertDialogDemo } from "./alert-dialog";
+import { ConfirmDialog } from "./alert-dialog";
+import { useDeleteProduct } from "@/api/product/useDeleteProduct";
+import { toast } from "sonner";
 
-export function DropdownMenuDemo() {
+export function DropdownMenuDemo({ id }: { id: string }) {
+  const deleteProduct = useDeleteProduct();
+  const handleDeleteProduct = (id: string) => {
+    deleteProduct.mutate(
+      { id },
+      {
+        onSuccess() {
+          toast.success("Prodcut delete successfully");
+        },
+        onError() {
+          //@ts-expect-error
+          toast.error(deleteProduct?.error.response.data.message);
+        },
+      }
+    );
+  };
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -32,7 +45,7 @@ export function DropdownMenuDemo() {
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <Link href={"/products/23423"}>
+          <Link href={`/products/${id}`}>
             <DropdownMenuItem>
               Details
               <DropdownMenuShortcut>
@@ -40,7 +53,7 @@ export function DropdownMenuDemo() {
               </DropdownMenuShortcut>
             </DropdownMenuItem>
           </Link>
-          <Link href={"/products/edit/sdfas"}>
+          <Link href={`/products/edit/${id}`}>
             <DropdownMenuItem>
               Update
               <DropdownMenuShortcut>
@@ -48,13 +61,18 @@ export function DropdownMenuDemo() {
               </DropdownMenuShortcut>
             </DropdownMenuItem>
           </Link>
-          <DropdownMenuItem>
-            Delete
-            <DropdownMenuShortcut>
-              <IconDelete className=" text-sm text-red-500" />
-            </DropdownMenuShortcut>
-            {/* <AlertDialogDemo /> */}
-          </DropdownMenuItem>
+          <ConfirmDialog
+            title="Are you sure to delete the products?"
+            description="this action can't be undone"
+            onConfirm={() => handleDeleteProduct(id)}
+          >
+            <Button
+              variant="ghost"
+              className=" flex justify-between items-center w-full px-2 "
+            >
+              Delete <IconDelete className=" text-red-500" />
+            </Button>
+          </ConfirmDialog>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
       </DropdownMenuContent>

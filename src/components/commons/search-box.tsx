@@ -1,48 +1,25 @@
-import React from "react";
 import { Input } from "../ui/input";
-import { Button } from "../ui/button";
 import IconSearch from "@/assets/icons/IconSearch";
-import { useForm } from "react-hook-form";
 import useSetUrlQuery from "@/lib/useSetUrlQuery";
-import IconClose from "@/assets/icons/IconClose";
+import { useDebouncedCallback } from "use-debounce";
 
 const SearchBox = () => {
-  const { register, handleSubmit, formState } = useForm({
-    defaultValues: {
-      search: "",
-    },
-  });
   const { setQuery, getQuery, deleteQuery } = useSetUrlQuery();
-  let currentSearch = getQuery("search");
-  const handleSearch = (data: { search: string }) => {
-    setQuery({ key: "search", value: data.search, backToFirstPage: true });
-  };
+  const search = getQuery("search");
+  const debounced = useDebouncedCallback(
+    (value) => setQuery({ key: "search", value, backToFirstPage: true }),
+    1000
+  );
   return (
-    <form
-      onSubmit={handleSubmit(handleSearch)}
-      className=" flex items-center rounded-md justify-center border-2 border-blue-500"
-    >
+    <div className=" flex px-3 items-center dark:bg-black rounded-md justify-center border-2 border-blue-500">
+      <IconSearch />
       <Input
-        value={currentSearch}
-        {...register("search")}
-        placeholder="Search in products..."
+        defaultValue={search}
+        placeholder="Search"
         className=" border-none outline-none"
+        onChange={(e) => debounced(e.target.value)}
       />
-
-      {currentSearch ? (
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => deleteQuery({ key: "search" })}
-        >
-          <IconClose />
-        </Button>
-      ) : (
-        <Button variant="ghost">
-          <IconSearch />
-        </Button>
-      )}
-    </form>
+    </div>
   );
 };
 

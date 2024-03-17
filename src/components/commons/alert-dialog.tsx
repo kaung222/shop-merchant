@@ -1,4 +1,3 @@
-import IconDelete from "@/assets/icons/IconDelete";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,25 +9,33 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Button } from "@/components/ui/button";
-
-export function AlertDialogDemo() {
+type AlertProps = {
+  description: string;
+  title: string;
+  children: React.ReactNode;
+  onConfirm: (e: React.MouseEvent) => void;
+};
+export function ConfirmDialog(props: AlertProps) {
+  const { description, title, onConfirm, children } = props;
   return (
     <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button variant="ghost">Delete</Button>
+      <AlertDialogTrigger
+        asChild
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+        }}
+      >
+        {children}
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete your
-            account and remove your data from our servers.
-          </AlertDialogDescription>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction>Continue</AlertDialogAction>
+          <AlertDialogAction onClick={onConfirm}>Confirm</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

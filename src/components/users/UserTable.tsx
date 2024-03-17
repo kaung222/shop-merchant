@@ -1,47 +1,40 @@
+"use client";
 import {
   Table,
   TableBody,
   TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "../ui/button";
+import Link from "next/link";
+import { User } from "@/types/user";
+import { ConfirmDialog } from "../commons/alert-dialog";
+import { apiClient } from "@/api/apiClient";
+import { useDeleteuser } from "@/api/user/useDeleteUser";
+import { toast } from "sonner";
 
-const invoices = [
-  {
-    invoice: "James",
-    paymentStatus: "0922432421",
-    totalAmount: "Active",
-    paymentMethod: "10/20/30",
-  },
-  {
-    invoice: "John",
-    paymentStatus: "20304533453",
-    totalAmount: "Active",
-    paymentMethod: "10/20/30",
-  },
-  {
-    invoice: "INV002",
-    paymentStatus: "Unpaid",
-    totalAmount: "Active",
-    paymentMethod: "10/20/30",
-  },
-  {
-    invoice: "INV003",
-    paymentStatus: "Unpaid",
-    totalAmount: "Restricted",
-    paymentMethod: "10/20/30",
-  },
-];
-
-export default function UserTable() {
+export default function UserTable({ users }: { users: User[] }) {
+  const { mutate, error } = useDeleteuser();
+  const handleDeleteUser = (id: string) => {
+    mutate(
+      { id },
+      {
+        onSuccess() {
+          toast.success("User created successfully");
+        },
+        onError() {
+          toast.error("Error deleting user!");
+        },
+      }
+    );
+  };
   return (
     <div className="h-[70vh] overflow-auto scroll-m-1 scroll-smooth">
       <Table>
-        <TableCaption>A list of recent registered users.</TableCaption>
+        <TableCaption>A list of your recent customers</TableCaption>
         <TableHeader className=" bg-slate-200">
           <TableRow>
             <TableHead className="">Name</TableHead>
@@ -52,14 +45,34 @@ export default function UserTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {invoices.map((invoice) => (
-            <TableRow key={invoice.invoice}>
-              <TableCell className="font-medium">{invoice.invoice}</TableCell>
-              <TableCell>{invoice.paymentStatus}</TableCell>
-              <TableCell>{invoice.paymentMethod}</TableCell>
-              <TableCell>{invoice.totalAmount}</TableCell>
+          {users?.map((user) => (
+            <TableRow key={user?.id}>
+              <TableCell className="font-medium">
+                {" "}
+                <Link
+                  href={"users/detail/212"}
+                  className="hover:underline hover:text-blue-500"
+                >
+                  {user.email}
+                </Link>
+              </TableCell>
+
+              <TableCell>Empty</TableCell>
               <TableCell>
-                <Button>Restrict</Button>
+                {user.createdAt.slice(0, user.createdAt.indexOf("T"))}
+              </TableCell>
+              <TableCell>{user.status}</TableCell>
+              <TableCell className=" space-x-2">
+                <Button>
+                  {user.status === "restrict" ? "Unrestrict" : "Restrict"}
+                </Button>
+                <ConfirmDialog
+                  onConfirm={() => handleDeleteUser(user.id)}
+                  title="Are you sure to delete this user?"
+                  description="This action can't be undone after deleting"
+                >
+                  <Button className=" bg-red-500">Delete</Button>
+                </ConfirmDialog>
               </TableCell>
             </TableRow>
           ))}

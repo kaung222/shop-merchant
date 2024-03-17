@@ -1,92 +1,136 @@
 "use client";
-import Button from "@/components/commons/Button";
-import Input from "@/components/commons/Input";
-import { CreateProductProps } from "@/types/productRes";
-import { createProductValidator } from "@/validators/create_product.validator";
-import { yupResolver } from "@hookform/resolvers/yup";
-import Link from "next/link";
+import { CreateProductSchema } from "@/validators/prodcut-validators";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Form } from "../ui/form";
+import { Button } from "../ui/button";
+import FormInput from "../commons/FormInput";
+import FormSelect from "../commons/FormSelect";
+import { categories } from "@/data/category.data";
+import { toast } from "sonner";
+import { useCreateProduct } from "@/api/product/useCreateProduct";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { emptyUrls } from "@/store/slices/createObjUrl";
+import { useRouter } from "next/navigation";
+import { PreviewProduct } from "./PreviewProduct";
+import FormTextarea from "../commons/FormTextarea";
+import { getItemFromLocalStorage } from "@/lib/utils";
 
-const CreateProductForm = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    resolver: yupResolver(createProductValidator),
+export default function CreateProductForm() {
+  const form = useForm<z.infer<typeof CreateProductSchema>>({
+    resolver: zodResolver(CreateProductSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      category: "",
+      price: 0,
+      discountPercentage: 0,
+      images: undefined,
+      moq: 1,
+    },
   });
-  const createProduct = (data: CreateProductProps) => {
-    console.log(data);
-  };
+  const { mutate, error } = useCreateProduct();
+  const router = useRouter();
+  const { imageUrls } = useAppSelector((state) => state.previewUrls);
+  const dispatcher = useAppDispatch();
+  const user = getItemFromLocalStorage("user");
+  function onSubmit(values: z.infer<typeof CreateProductSchema>) {
+    const formData = new FormData();
+    Array.from(values.images).map((image) => {
+      formData.append("images", image as Blob);
+    });
+    // formData.append("thumbnail", Array.from(values.thumbnail)[0] as Blob);
+    formData.append("title", values.title);
+    formData.append("description", values.description);
+    formData.append("category", values.category);
+    formData.append("ownerId", user.id);
+    formData.append("price", values.price.toString());
+    formData.append("discountPercentage", values.discountPercentage.toString());
+    formData.append("moq", values.moq.toString());
+    dispatcher(emptyUrls(""));
+    //@ts-expect-error
+    mutate(formData, {
+      onSuccess() {
+        toast.success("Created product successfully");
+      },
+      onError() {
+        //@ts-expect-error
+        toast.error(error.response.data.message);
+      },
+    });
+  }
   return (
-    <div className="p-3 md:p-5">
-      <div className="">
-        <h3 className=" font-bold text-xl my-5">Create Product Page </h3>
-        <form
-          //@ts-expect-error
-          onSubmit={handleSubmit(createProduct)}
-          className=" grid grid-cols-2 gap-5"
-        >
-          <Input
-            name="title"
-            id="title"
-            register={register}
-            type="text"
-            placeholder="Product title"
-            error={errors.title?.message}
-          />
-          <Input
-            name="description"
-            id="description"
-            register={register}
-            type="text"
-            placeholder="Product description"
-            error={errors.description?.message}
-          />
-          <Input
-            name="category"
-            id="category"
-            register={register}
-            type="text"
-            placeholder="Product category"
-            error={errors.category?.message}
-          />
-          <Input
-            name="price"
-            id="price"
-            register={register}
-            type="text"
-            placeholder="Product price"
-            error={errors.price?.message}
-          />
-          <Input
-            name="discountPercentage"
-            id="discount"
-            register={register}
-            type="number"
-            placeholder="Discount percentage eg:10"
-            error={errors.discount?.message}
-          />
-          <Input
-            name="images"
-            id="images"
-            register={register}
-            type="file"
-            placeholder="Product images"
-            error={errors.images?.message}
-          />
-          <Link href="/products">
-            <Button className=" bg-red-500 text-white" variant="contained">
+    <div className="">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="">
+          <div className=" grid grid-cols-2 gap-5 p-5">
+            <FormInput
+              placeholder="Title"
+              form={form}
+              type="text"
+              name="title"
+              label="Title"
+            />
+
+            <FormSelect
+              form={form}
+              name="category"
+              options={categories}
+              label="Category"
+              placeholder="Select Category"
+            />
+            <FormInput
+              form={form}
+              type="number"
+              placeholder="Price"
+              name="price"
+              label="Price"
+            />
+            <FormInput
+              type="file"
+              form={form}
+              name="images"
+              label="Product Images"
+            />
+            <FormInput
+              form={form}
+              type="number"
+              name="discountPercentage"
+              label="Discount Percentage (optional)"
+            />
+            {/* <FormInput
+              type="file"
+              placeholder="Thumbnail"
+              form={form}
+              name="thumbnail"
+              label="Thumbnail"
+            /> */}
+            <FormInput
+              type="number"
+              placeholder="Minimun of quantity"
+              form={form}
+              name="moq"
+              label="MOQ (optional)"
+            />
+            <FormTextarea
+              placeholder="Enter product description ..."
+              form={form}
+              name="description"
+              label="Product Description (optional)"
+            />
+          </div>
+          <div className="p-5 space-x-5">
+            <Button type="reset" className=" bg-red-500">
               Cancel
             </Button>
-          </Link>
-          <Button className=" float-right" variant="contained">
-            Create Product
-          </Button>
+            <PreviewProduct />
+            <Button type="submit" className=" bg-blue-500">
+              Submit
+            </Button>
+          </div>
         </form>
-      </div>
+      </Form>
     </div>
   );
-};
-
-export default CreateProductForm;
+}

@@ -1,4 +1,4 @@
-import { Input } from "../ui/input";
+import SearchBox from "../commons/search-box";
 import {
   Select,
   SelectContent,
@@ -11,7 +11,7 @@ import {
 const UserFilterbar = () => {
   return (
     <div className="flex items-center justify-between space-x-10">
-      <Input name="order" placeholder="Search in products..." className="" />
+      <SearchBox />
       <div className="flex py-3 items-center space-x-6">
         <Select value="newToOld">
           <SelectTrigger className="w-[200px]">

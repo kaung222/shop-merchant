@@ -10,7 +10,7 @@ import {
 import { SelectContent } from "@radix-ui/react-select";
 
 type PageProps = {
-  total: number;
+  total?: number;
   pageCount: number;
 };
 

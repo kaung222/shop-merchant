@@ -1,27 +1,28 @@
 "use client";
 import Navbar from "@/components/layout/Navbar";
 import Sidebar from "@/components/layout/Sidebar";
-import { Toaster } from "@/components/ui/sonner";
-import ReactQueryProvider from "@/store/providers/ReactQueryProvider";
-import ReduxProvider from "@/store/providers/ReduxProvider";
+import { redirect } from "next/navigation";
+import { useEffect } from "react";
 
 const layout = (props: { children: React.ReactNode }) => {
+  useEffect(() => {
+    const access_token =
+      typeof window !== "undefined"
+        ? localStorage.getItem("access_token")
+        : null;
+    if (!access_token) return redirect("/login");
+  }, []);
   return (
     <div>
-      <ReduxProvider>
-        <ReactQueryProvider>
-          <div className=" dark:bg-gray-800 dark:text-white">
-            <div className="flex h-screen">
-              <Sidebar />
-              <div className="w-full">
-                <Navbar />
-                {props.children}
-              </div>
-            </div>
+      <div className=" dark:bg-gray-800 dark:text-white">
+        <div className="flex h-screen">
+          <Sidebar />
+          <div className="w-full">
+            <Navbar />
+            {props.children}
           </div>
-          <Toaster />
-        </ReactQueryProvider>
-      </ReduxProvider>
+        </div>
+      </div>
     </div>
   );
 };

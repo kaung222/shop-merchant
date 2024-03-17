@@ -1,16 +1,23 @@
 "use client";
 import Link from "next/link";
 import { navbarLinks } from "@/data/Navbar.data";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Button } from "../ui/button";
 import IconBack from "@/assets/icons/IconBack";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 const Sidebar = () => {
   const pathname = usePathname();
   const path = pathname.split("/")[1];
   const [isOpen, setIsOpen] = useState(true);
-
+  const router = useRouter();
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("access_token");
+    router.push("/login");
+    toast.success("Logout successfully!", { position: "top-center" });
+  };
   return (
     <div
       className={cn("duration-200 h-full", isOpen ? "w-[300px]" : "w-[85px]")}
@@ -42,7 +49,7 @@ const Sidebar = () => {
         >
           <IconBack />
         </Button>
-        <Button onClick={() => {}} className=" absolute bottom-2 w-[90%]">
+        <Button onClick={handleLogout} className=" absolute bottom-2 w-[90%]">
           Logout
         </Button>
       </div>
