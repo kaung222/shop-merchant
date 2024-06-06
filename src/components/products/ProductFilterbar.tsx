@@ -8,13 +8,14 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Button } from "../ui/button";
-import { categories } from "@/data/category.data";
 import useSetUrlQuery from "@/lib/useSetUrlQuery";
 import SearchBox from "../commons/search-box";
+import { useGetCategories } from "@/api/category/useGetCategories";
 const ProductFilterbar = () => {
   const { getQuery, setQuery } = useSetUrlQuery();
   const currentCategory = getQuery("category");
   const currentSort = getQuery("sort");
+  const { data: categories } = useGetCategories();
 
   return (
     <div className="flex items-center justify-between space-x-10">
@@ -48,12 +49,9 @@ const ProductFilterbar = () => {
           <SelectContent>
             <SelectGroup>
               <SelectItem value="all">All Categories</SelectItem>
-              {categories.map((category) => {
+              {categories?.map((category) => {
                 return (
-                  <SelectItem
-                    value={category.name.toLowerCase()}
-                    key={category.id}
-                  >
+                  <SelectItem value={category.id} key={category.id}>
                     {category.name}
                   </SelectItem>
                 );

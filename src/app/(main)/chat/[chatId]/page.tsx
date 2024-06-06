@@ -3,6 +3,7 @@
 import { useDeleteMessage } from "@/api/chat/useDeleteMessage";
 import { useGetMessagesByChatId } from "@/api/chat/useGetMessagesByChatId";
 import { useSendMessage } from "@/api/chat/useSendMessage";
+import { useConnectSocket } from "@/api/socketClient";
 import IconClose from "@/assets/icons/IconClose";
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
@@ -13,7 +14,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Socket, io } from "socket.io-client";
 import { toast } from "sonner";
 type messageProps = {
   senderId: string;
@@ -32,12 +32,12 @@ const Page = ({ params }: DetailProps) => {
   const chatId = params.chatId;
   const { data } = useGetMessagesByChatId(chatId);
   const [messages, setMessages] = useState<messageProps[]>([]);
-  const [socket, setSocket] = useState<Socket>();
   const [typing, setTyping] = useState<TypingProps>(null);
   const scrollRef = useRef(null);
   const merchant = getItemFromLocalStorage("user");
   const { mutate: sendMessage } = useSendMessage();
   const { mutate: deleteMessage } = useDeleteMessage();
+  const { socket } = useConnectSocket();
 
   const form = useForm({
     resolver: zodResolver(sendMessageSchema),
@@ -99,15 +99,6 @@ const Page = ({ params }: DetailProps) => {
   const handleTyping = () => {
     socket?.emit("typing", { id: "1235", name: "marcus", chatId });
   };
-
-  //for connecting socket initially
-  useEffect(() => {
-    const socket = io("http://localhost:8080", { autoConnect: true });
-    setSocket(socket);
-    if (socket) {
-      socket.emit("join-room", { chatId });
-    }
-  }, []);
   useEffect(() => {
     if (scrollRef.current) {
       //@ts-expect-error

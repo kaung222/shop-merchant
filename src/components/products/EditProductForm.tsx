@@ -14,6 +14,12 @@ import { toast } from "sonner";
 import Link from "next/link";
 import FormTextarea from "../commons/FormTextarea";
 import { getItemFromLocalStorage } from "@/lib/utils";
+import SelectSection from "./select-section";
+import CategoryMultiSelect from "./multi-select.category";
+import useSetUrlQuery from "@/lib/useSetUrlQuery";
+import { useEffect, useState } from "react";
+import { Category } from "@/types/category";
+import { useGetSections } from "@/api/category/useGetSection";
 
 export default function EditProduct({ product }: { product: Product }) {
   const form = useForm<z.infer<typeof EditProductSchema>>({
@@ -21,7 +27,8 @@ export default function EditProduct({ product }: { product: Product }) {
     defaultValues: {
       title: product?.title,
       description: product?.description,
-      category: product?.category,
+      //@ts-expect-error
+      categories: product?.categories,
       price: product?.price,
       discountPercentage: product?.discountPercentage,
       images: undefined,
@@ -29,18 +36,26 @@ export default function EditProduct({ product }: { product: Product }) {
     },
   });
   const { mutate, error } = useUpdateProduct();
-  const user = getItemFromLocalStorage("user");
+  const { getQuery } = useSetUrlQuery();
+  const section = getQuery("section");
+  const [selectCategories, setSelectCategories] = useState<Category[]>(
+    product.categories
+  );
+  const [categories, setCategories] = useState<Category[]>([]);
+  const { data: sections } = useGetSections();
   function onSubmit(values: z.infer<typeof EditProductSchema>) {
     const formData = new FormData();
+    console.log(values);
     if (values.images) {
       Array.from(values.images).map((image) => {
         formData.append("images", image as Blob);
       });
     }
+    selectCategories.map((category) => {
+      formData.append("categories", category.id);
+    });
     formData.append("title", values.title);
     formData.append("description", values.description);
-    formData.append("category", values.category);
-    // formData.append("ownerId", user.id);
     formData.append("price", values.price.toString());
     formData.append("discountPercentage", values.discountPercentage.toString());
     formData.append("moq", values.moq.toString());
@@ -57,6 +72,14 @@ export default function EditProduct({ product }: { product: Product }) {
       }
     );
   }
+
+  useEffect(() => {
+    section &&
+      setCategories(
+        //@ts-expect-error
+        sections?.find((sect) => sect.id === section)?.subCategories
+      );
+  }, [section]);
   return (
     <div className="">
       <Form {...form}>
@@ -71,13 +94,13 @@ export default function EditProduct({ product }: { product: Product }) {
               defaultValue={product?.title}
             />
 
-            <FormSelect
-              form={form}
-              name="category"
+            <SelectSection options={sections} />
+            <CategoryMultiSelect
+              error={"no error"}
+              register={form.register}
               options={categories}
-              label="Category"
-              placeholder="All Categories"
-              defaultValue={product?.category}
+              selectedTags={selectCategories}
+              setSelectedTags={setSelectCategories}
             />
             <FormInput
               form={form}

@@ -7,7 +7,7 @@ import { Form } from "../ui/form";
 import { Button } from "../ui/button";
 import FormInput from "../commons/FormInput";
 import FormSelect from "../commons/FormSelect";
-import { categories } from "@/data/category.data";
+// import { categories } from "@/data/category.data";
 import { toast } from "sonner";
 import { useCreateProduct } from "@/api/product/useCreateProduct";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -15,36 +15,50 @@ import { emptyUrls } from "@/store/slices/createObjUrl";
 import { useRouter } from "next/navigation";
 import { PreviewProduct } from "./PreviewProduct";
 import FormTextarea from "../commons/FormTextarea";
-import { getItemFromLocalStorage } from "@/lib/utils";
+import { useGetCategories } from "@/api/category/useGetCategories";
+import CategoryMultiSelect from "./multi-select.category";
+import { useEffect, useState } from "react";
+import SelectSection from "./select-section";
+import { Category } from "@/types/category";
+import useSetUrlQuery from "@/lib/useSetUrlQuery";
+import { useGetSections } from "@/api/category/useGetSection";
 
 export default function CreateProductForm() {
+  const { mutate, error } = useCreateProduct();
+  const { getQuery } = useSetUrlQuery();
+  const section = getQuery("section");
+  const [selectCategories, setSelectCategories] = useState<Category[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const { data: sections } = useGetSections();
+  const router = useRouter();
+  const { imageUrls } = useAppSelector((state) => state.previewUrls);
+  const dispatcher = useAppDispatch();
   const form = useForm<z.infer<typeof CreateProductSchema>>({
     resolver: zodResolver(CreateProductSchema),
     defaultValues: {
       title: "",
       description: "",
-      category: "",
+      categories: [],
       price: 0,
       discountPercentage: 0,
       images: undefined,
       moq: 1,
     },
   });
-  const { mutate, error } = useCreateProduct();
-  const router = useRouter();
-  const { imageUrls } = useAppSelector((state) => state.previewUrls);
-  const dispatcher = useAppDispatch();
-  const user = getItemFromLocalStorage("user");
   function onSubmit(values: z.infer<typeof CreateProductSchema>) {
+    // console.log(values);
+    // return;
     const formData = new FormData();
     Array.from(values.images).map((image) => {
       formData.append("images", image as Blob);
     });
+    // for test
+    selectCategories.map((category) => {
+      formData.append("categories", category.id);
+    });
     // formData.append("thumbnail", Array.from(values.thumbnail)[0] as Blob);
     formData.append("title", values.title);
     formData.append("description", values.description);
-    formData.append("category", values.category);
-    formData.append("ownerId", user.id);
     formData.append("price", values.price.toString());
     formData.append("discountPercentage", values.discountPercentage.toString());
     formData.append("moq", values.moq.toString());
@@ -60,6 +74,14 @@ export default function CreateProductForm() {
       },
     });
   }
+
+  useEffect(() => {
+    section &&
+      setCategories(
+        //@ts-expect-error
+        sections?.find((sect) => sect.id === section)?.subCategories
+      );
+  }, [section]);
   return (
     <div className="">
       <Form {...form}>
@@ -72,13 +94,21 @@ export default function CreateProductForm() {
               name="title"
               label="Title"
             />
-
-            <FormSelect
+            {/* <FormSelect
               form={form}
-              name="category"
-              options={categories}
-              label="Category"
+              name="section"
+              options={sections}
+              label="Section"
               placeholder="Select Category"
+            /> */}
+
+            <SelectSection options={sections} />
+            <CategoryMultiSelect
+              error={"no error"}
+              register={form.register}
+              options={categories}
+              selectedTags={selectCategories}
+              setSelectedTags={setSelectCategories}
             />
             <FormInput
               form={form}

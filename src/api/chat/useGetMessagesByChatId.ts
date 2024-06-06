@@ -6,7 +6,7 @@ export const useGetMessagesByChatId = (chatId: string) => {
     queryKey: ["GetMessages"],
     queryFn: async () => {
       return await apiClient
-        .get(`chats/messages/${chatId}`)
+        .get(`chats/${chatId}/messages`)
         .then((res) => res.data);
     },
     refetchOnWindowFocus: false,

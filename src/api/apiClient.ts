@@ -1,6 +1,5 @@
 import axios from "axios";
 export const baseURL = "http://localhost:5050/api/v1";
-// export const baseURL = "https://zawgyi.onrender.com/api/v1";
 
 export const apiClient = axios.create({
   baseURL,

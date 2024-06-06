@@ -8,13 +8,11 @@ export type ChatsRes = {
   merchant: Merchant;
   ackedUserIds: string[];
 };
-export const useGetChats = (merchantId: string) => {
+export const useGetChats = () => {
   return useQuery<ChatsRes[]>({
     queryKey: ["GetChats"],
     queryFn: async () => {
-      return await apiClient
-        .get(`chats/user/${merchantId}`)
-        .then((res) => res.data);
+      return await apiClient.get("chats/user").then((res) => res.data);
     },
   });
 };

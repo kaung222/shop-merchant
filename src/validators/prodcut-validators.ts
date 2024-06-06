@@ -16,7 +16,6 @@ export const EditProductSchema = z.object({
     .max(50),
   moq: z.number().min(1),
   description: z.string().max(500),
-  category: z.string().min(3, { message: "Choose at least one category!" }),
   price: z
     .number()
     .min(100, { message: "Price should be between 100 and 999999!" })
@@ -35,7 +34,7 @@ export const CreateProductSchema = z
       .max(50),
     description: z.string().max(500),
     moq: z.number().min(1),
-    category: z.string().min(3, { message: "Choose at least one category!" }),
+    categories: z.array(z.string()),
     price: z
       .number()
       .min(100, { message: "Price should be between 100 and 999999!" })

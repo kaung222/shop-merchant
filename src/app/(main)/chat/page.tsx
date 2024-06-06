@@ -5,8 +5,8 @@ import ChatItem from "@/components/chat/ChatItem";
 import { getItemFromLocalStorage } from "@/lib/utils";
 
 const Page = () => {
-  const merchant = getItemFromLocalStorage("user");
-  const { data: chats } = useGetChats(merchant.id);
+  // const merchant = getItemFromLocalStorage("user");
+  const { data: chats } = useGetChats();
   return (
     <div className=" space-y-2 p-5">
       {chats?.map((chat) => {

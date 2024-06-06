@@ -21,6 +21,7 @@ import { toast } from "sonner";
 export function DropdownMenuDemo({ id }: { id: string }) {
   const deleteProduct = useDeleteProduct();
   const handleDeleteProduct = (id: string) => {
+    console.log("run delete");
     deleteProduct.mutate(
       { id },
       {

@@ -13,21 +13,13 @@ type AlertProps = {
   description: string;
   title: string;
   children: React.ReactNode;
-  onConfirm: (e: React.MouseEvent) => void;
+  onConfirm: () => void;
 };
 export function ConfirmDialog(props: AlertProps) {
   const { description, title, onConfirm, children } = props;
   return (
     <AlertDialog>
-      <AlertDialogTrigger
-        asChild
-        onClick={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-        }}
-      >
-        {children}
-      </AlertDialogTrigger>
+      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>{title}</AlertDialogTitle>

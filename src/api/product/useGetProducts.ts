@@ -19,14 +19,13 @@ type Products = {
 
 export const useGetProducts = (props: GetProductProps) => {
   const { page, limit, search, sort, category } = props;
-  const user = getItemFromLocalStorage("user");
   return useQuery<Products>({
     queryKey: ["GetProducts", page, limit, search, sort, category],
     queryFn: async () => {
       return await apiClient
-        .get(`/products/merchant/${user?.id}`, {
+        .get(`/products/merchant/`, {
           params: {
-            category,
+            categoryId: category,
             query: search,
             limit,
             page,

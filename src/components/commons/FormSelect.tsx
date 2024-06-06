@@ -21,7 +21,7 @@ type FormInputProps = {
   description?: string;
   placeholder?: string;
   defaultValue?: string;
-  options: { name: string; value: string }[];
+  options: { name: string; id: string }[];
 };
 const FormSelect = (props: FormInputProps) => {
   const { form, name, label, description, placeholder, options, defaultValue } =
@@ -42,9 +42,9 @@ const FormSelect = (props: FormInputProps) => {
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {options.map((option) => {
+                {options?.map((option) => {
                   return (
-                    <SelectItem key={option.value} value={option.value}>
+                    <SelectItem key={option.id} value={option.id}>
                       {option.name}
                     </SelectItem>
                   );

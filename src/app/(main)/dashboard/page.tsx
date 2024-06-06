@@ -1,5 +1,5 @@
 "use client";
-import { test } from "@/lib/utils";
+import { ConfirmDialog } from "@/components/commons/alert-dialog";
 import axios from "axios";
 
 const Page = () => {
@@ -13,6 +13,13 @@ const Page = () => {
   return (
     <div>
       <button onClick={handleClick}>add</button>
+      <ConfirmDialog
+        onConfirm={() => console.log("deleted")}
+        title="heloo"
+        description="are you sure to delete"
+      >
+        <button>delete</button>
+      </ConfirmDialog>
     </div>
   );
 };
